@@ -1,0 +1,80 @@
+{
+  "model_version": "2.0.0-2026-09-19",
+  "trained_at": "2026-09-19T21:41:10+00:00",
+  "dataset": {
+    "name": "PaySim (synthetic mobile-money transactions)",
+    "train_rows": 325066,
+    "val_rows": 636495,
+    "test_rows": 1272800,
+    "test_frauds": 1676,
+    "natural_fraud_rate_test": 0.001316781898177247
+  },
+  "environment": {
+    "python": "3.10.11",
+    "scikit_learn": "1.7.2",
+    "xgboost": "3.2.0",
+    "numpy": "2.0.1",
+    "pandas": "2.2.2"
+  },
+  "notes": [
+    "Only real PaySim signals are used: type, amount, balances, hour. Location/device/history are handled by the transparent rule layer (fraud.context), not by the model.",
+    "Probabilities are prior-corrected to the natural fraud rate; threshold maximises F1 on validation.",
+    "PaySim frauds almost always empty the sender's account; expect optimistic scores versus real traffic."
+  ],
+  "quick_run": false,
+  "feature_names": [
+    "amount",
+    "oldbalanceOrg",
+    "newbalanceOrig",
+    "oldbalanceDest",
+    "newbalanceDest",
+    "dest_balance_known",
+    "hour_of_day",
+    "is_night",
+    "orig_balance_error",
+    "dest_balance_error",
+    "amount_to_balance_ratio",
+    "orig_drained",
+    "amount_exceeds_balance",
+    "dest_empty_before",
+    "dest_unchanged",
+    "type_CASH_OUT",
+    "type_DEBIT",
+    "type_PAYMENT",
+    "type_TRANSFER"
+  ],
+  "feature_labels": {
+    "amount": "Transaction amount",
+    "oldbalanceOrg": "Sender balance before",
+    "newbalanceOrig": "Sender balance after",
+    "oldbalanceDest": "Recipient balance before",
+    "newbalanceDest": "Recipient balance after",
+    "dest_balance_known": "Recipient balance available",
+    "hour_of_day": "Hour of day",
+    "is_night": "Night-time transaction",
+    "orig_balance_error": "Sender balance mismatch",
+    "dest_balance_error": "Recipient balance mismatch",
+    "amount_to_balance_ratio": "Share of balance being moved",
+    "orig_drained": "Account emptied",
+    "amount_exceeds_balance": "Amount exceeds available balance",
+    "dest_empty_before": "Recipient account was empty",
+    "dest_unchanged": "Recipient balance did not change",
+    "type_CASH_OUT": "Transaction type: cash-out / withdrawal",
+    "type_DEBIT": "Transaction type: debit",
+    "type_PAYMENT": "Transaction type: payment",
+    "type_TRANSFER": "Transaction type: transfer"
+  },
+  "beta": 0.07180199864826156,
+  "champion": "quantum_enhanced",
+  "threshold": 0.5610826192151003,
+  "selected_features": [
+    "oldbalanceOrg",
+    "newbalanceDest",
+    "orig_balance_error",
+    "dest_balance_error",
+    "amount_to_balance_ratio",
+    "dest_empty_before",
+    "dest_unchanged",
+    "type_PAYMENT"
+  ]
+}

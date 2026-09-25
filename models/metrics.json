@@ -1,0 +1,840 @@
+{
+  "feature_selection": {
+    "chosen_method": "quantum_genetic",
+    "methods": {
+      "selectkbest": {
+        "features": [
+          0,
+          1,
+          2,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          18
+        ],
+        "k": 12,
+        "fitness": 0.9945628477463677,
+        "holdout_average_precision": 0.9977207424832099,
+        "evaluations": 1,
+        "runtime_s": 14.81,
+        "history": [],
+        "params": {
+          "score_func": "f_classif",
+          "k": 12
+        },
+        "test_average_precision": 0.9974485542274729,
+        "feature_names": [
+          "amount",
+          "oldbalanceOrg",
+          "newbalanceOrig",
+          "is_night",
+          "orig_balance_error",
+          "dest_balance_error",
+          "amount_to_balance_ratio",
+          "orig_drained",
+          "amount_exceeds_balance",
+          "dest_empty_before",
+          "dest_unchanged",
+          "type_TRANSFER"
+        ]
+      },
+      "quantum_genetic": {
+        "features": [
+          1,
+          4,
+          8,
+          9,
+          10,
+          13,
+          14,
+          17
+        ],
+        "k": 8,
+        "fitness": 0.9955696349345312,
+        "holdout_average_precision": 0.9976748980924259,
+        "evaluations": 131,
+        "runtime_s": 56.42,
+        "history": [
+          0.99547,
+          0.99547,
+          0.99547,
+          0.99547,
+          0.99547,
+          0.99547,
+          0.99557,
+          0.99557,
+          0.99557,
+          0.99557,
+          0.99557,
+          0.99557,
+          0.99557,
+          0.99557
+        ],
+        "params": {
+          "population": 16,
+          "iterations": 14,
+          "rotation": 0.12,
+          "mutation_rate": 0.03,
+          "penalty": 0.005
+        },
+        "test_average_precision": 0.9966093459679604,
+        "feature_names": [
+          "oldbalanceOrg",
+          "newbalanceDest",
+          "orig_balance_error",
+          "dest_balance_error",
+          "amount_to_balance_ratio",
+          "dest_empty_before",
+          "dest_unchanged",
+          "type_PAYMENT"
+        ]
+      },
+      "quantum_differential_evolution": {
+        "features": [
+          0,
+          1,
+          2,
+          3,
+          6,
+          7,
+          8,
+          11,
+          12,
+          13,
+          15,
+          18
+        ],
+        "k": 12,
+        "fitness": 0.9950243062016488,
+        "holdout_average_precision": 0.998182200938491,
+        "evaluations": 106,
+        "runtime_s": 44.99,
+        "history": [
+          0.99499,
+          0.99499,
+          0.99499,
+          0.99499,
+          0.99499,
+          0.995,
+          0.99501,
+          0.99501,
+          0.99501,
+          0.99501,
+          0.99501,
+          0.99501,
+          0.99502
+        ],
+        "params": {
+          "population": 12,
+          "iterations": 12,
+          "mutation_factor": 0.8,
+          "crossover_rate": 0.9,
+          "rotation": 0.05,
+          "target_k": 12,
+          "penalty": 0.005
+        },
+        "test_average_precision": 0.9975620681687835,
+        "feature_names": [
+          "amount",
+          "oldbalanceOrg",
+          "newbalanceOrig",
+          "oldbalanceDest",
+          "hour_of_day",
+          "is_night",
+          "orig_balance_error",
+          "orig_drained",
+          "amount_exceeds_balance",
+          "dest_empty_before",
+          "type_CASH_OUT",
+          "type_TRANSFER"
+        ]
+      },
+      "all_features_reference": {
+        "features": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
+        "k": 19,
+        "fitness": 0.9928751076135234,
+        "holdout_average_precision": 0.9978751076135234,
+        "evaluations": 1,
+        "runtime_s": 0.0,
+        "history": [],
+        "params": {},
+        "test_average_precision": 0.9974809251156653,
+        "feature_names": [
+          "amount",
+          "oldbalanceOrg",
+          "newbalanceOrig",
+          "oldbalanceDest",
+          "newbalanceDest",
+          "dest_balance_known",
+          "hour_of_day",
+          "is_night",
+          "orig_balance_error",
+          "dest_balance_error",
+          "amount_to_balance_ratio",
+          "orig_drained",
+          "amount_exceeds_balance",
+          "dest_empty_before",
+          "dest_unchanged",
+          "type_CASH_OUT",
+          "type_DEBIT",
+          "type_PAYMENT",
+          "type_TRANSFER"
+        ]
+      }
+    },
+    "target_k": 12
+  },
+  "hyperparameter_search": {
+    "xgboost": {
+      "best_params": {
+        "max_depth": 6,
+        "learning_rate": 0.05,
+        "n_estimators": 300,
+        "subsample": 0.85,
+        "min_child_weight": 1
+      },
+      "best_score": 0.9984467474610196,
+      "evaluations": 14,
+      "runtime_s": 57.0,
+      "history": [
+        0.99844,
+        0.99844,
+        0.99845,
+        0.99845
+      ],
+      "grid": {
+        "max_depth": [
+          3,
+          4,
+          5,
+          6,
+          8
+        ],
+        "learning_rate": [
+          0.03,
+          0.05,
+          0.1,
+          0.2
+        ],
+        "n_estimators": [
+          100,
+          200,
+          300
+        ],
+        "subsample": [
+          0.7,
+          0.85,
+          1.0
+        ],
+        "min_child_weight": [
+          1,
+          5,
+          10,
+          20
+        ]
+      }
+    },
+    "random_forest": {
+      "best_params": {
+        "n_estimators": 80,
+        "max_depth": 10,
+        "min_samples_leaf": 5,
+        "max_features": 0.5
+      },
+      "best_score": 0.9985541110299895,
+      "evaluations": 8,
+      "runtime_s": 62.23,
+      "history": [
+        0.99855,
+        0.99855,
+        0.99855,
+        0.99855
+      ],
+      "grid": {
+        "n_estimators": [
+          80,
+          120,
+          160
+        ],
+        "max_depth": [
+          8,
+          10,
+          12,
+          14
+        ],
+        "min_samples_leaf": [
+          3,
+          5,
+          10
+        ],
+        "max_features": [
+          "sqrt",
+          0.5
+        ]
+      }
+    }
+  },
+  "quality_gate": {
+    "xgboost_optimized": {
+      "validation_ap": 0.9972309605051008,
+      "sibling_ap": 0.9981022273941795,
+      "fell_back_to_defaults": false
+    },
+    "random_forest_optimized": {
+      "validation_ap": 0.9981209344881842,
+      "sibling_ap": 0.9988945869238395,
+      "fell_back_to_defaults": false
+    }
+  },
+  "test_metrics": {
+    "logistic_regression": {
+      "average_precision": 0.9940118485061783,
+      "roc_auc": 0.9983514918812875,
+      "threshold": 0.27779732497800563,
+      "precision": 0.9928100659077291,
+      "recall": 0.9886634844868735,
+      "f1": 0.9907324364723468,
+      "false_positive_rate": 9.440463715577709e-06,
+      "confusion_matrix": [
+        [
+          1271112,
+          12
+        ],
+        [
+          19,
+          1657
+        ]
+      ],
+      "precision_at_100": 1.0,
+      "precision_at_1000": 1.0,
+      "precision_at_n_frauds": 0.9910501193317423,
+      "layer": "layer1",
+      "validation_average_precision": 0.9957161684435468
+    },
+    "decision_tree": {
+      "average_precision": 0.9524971422104512,
+      "roc_auc": 0.9991528242300038,
+      "threshold": 1.0000000000000004,
+      "precision": 0.9548313321898227,
+      "recall": 0.9964200477326969,
+      "f1": 0.9751824817518246,
+      "false_positive_rate": 6.214971946088658e-05,
+      "confusion_matrix": [
+        [
+          1271045,
+          79
+        ],
+        [
+          6,
+          1670
+        ]
+      ],
+      "precision_at_100": 0.78,
+      "precision_at_1000": 0.924,
+      "precision_at_n_frauds": 0.9528639618138425,
+      "layer": "layer1",
+      "validation_average_precision": 0.9542948553650054
+    },
+    "xgboost": {
+      "average_precision": 0.9975750395039196,
+      "roc_auc": 0.9993529858121397,
+      "threshold": 0.48879135089698333,
+      "precision": 1.0,
+      "recall": 0.9946300715990454,
+      "f1": 0.99730780735866,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": [
+        [
+          1271124,
+          0
+        ],
+        [
+          9,
+          1667
+        ]
+      ],
+      "precision_at_100": 1.0,
+      "precision_at_1000": 1.0,
+      "precision_at_n_frauds": 0.9964200477326969,
+      "layer": "layer1",
+      "validation_average_precision": 0.9981022273941795
+    },
+    "random_forest": {
+      "average_precision": 0.9973657796118479,
+      "roc_auc": 0.9992620990526349,
+      "threshold": 0.48821377804990584,
+      "precision": 1.0,
+      "recall": 0.9934367541766109,
+      "f1": 0.996707572583059,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": [
+        [
+          1271124,
+          0
+        ],
+        [
+          11,
+          1665
+        ]
+      ],
+      "precision_at_100": 1.0,
+      "precision_at_1000": 1.0,
+      "precision_at_n_frauds": 0.9964200477326969,
+      "layer": "layer1",
+      "validation_average_precision": 0.9988945869238395
+    },
+    "adaboost": {
+      "average_precision": 0.994816337360869,
+      "roc_auc": 0.9990332914930028,
+      "threshold": 0.07694380573108003,
+      "precision": 0.9951573849878934,
+      "recall": 0.9809069212410502,
+      "f1": 0.9879807692307693,
+      "false_positive_rate": 6.293642477051806e-06,
+      "confusion_matrix": [
+        [
+          1271116,
+          8
+        ],
+        [
+          32,
+          1644
+        ]
+      ],
+      "precision_at_100": 1.0,
+      "precision_at_1000": 0.999,
+      "precision_at_n_frauds": 0.9815035799522673,
+      "layer": "layer1",
+      "validation_average_precision": 0.9977302717289004
+    },
+    "xgboost_optimized": {
+      "average_precision": 0.9972881503882707,
+      "roc_auc": 0.999140972016956,
+      "threshold": 0.49085071313024375,
+      "precision": 0.9934484812388327,
+      "recall": 0.9952267303102625,
+      "f1": 0.9943368107302534,
+      "false_positive_rate": 8.653758405946234e-06,
+      "confusion_matrix": [
+        [
+          1271113,
+          11
+        ],
+        [
+          8,
+          1668
+        ]
+      ],
+      "precision_at_100": 1.0,
+      "precision_at_1000": 1.0,
+      "precision_at_n_frauds": 0.9946300715990454,
+      "layer": "layer3",
+      "validation_average_precision": 0.9972309605051008
+    },
+    "random_forest_optimized": {
+      "average_precision": 0.9973120729847337,
+      "roc_auc": 0.9992685912490176,
+      "threshold": 0.09249256402942711,
+      "precision": 0.9940405244338498,
+      "recall": 0.9952267303102625,
+      "f1": 0.9946332737030411,
+      "false_positive_rate": 7.867053096314757e-06,
+      "confusion_matrix": [
+        [
+          1271114,
+          10
+        ],
+        [
+          8,
+          1668
+        ]
+      ],
+      "precision_at_100": 1.0,
+      "precision_at_1000": 1.0,
+      "precision_at_n_frauds": 0.9952267303102625,
+      "layer": "layer3",
+      "validation_average_precision": 0.9981209344881842
+    },
+    "soft_voting": {
+      "average_precision": 0.9974513370470875,
+      "roc_auc": 0.9991704281694905,
+      "threshold": 0.610528283657626,
+      "precision": 1.0,
+      "recall": 0.9934367541766109,
+      "f1": 0.996707572583059,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": [
+        [
+          1271124,
+          0
+        ],
+        [
+          11,
+          1665
+        ]
+      ],
+      "precision_at_100": 1.0,
+      "precision_at_1000": 1.0,
+      "precision_at_n_frauds": 0.9964200477326969,
+      "layer": "layer2",
+      "validation_average_precision": 0.9986272497570579
+    },
+    "weighted_voting": {
+      "average_precision": 0.9974505126692933,
+      "roc_auc": 0.9991663505388074,
+      "threshold": 0.6065485182956525,
+      "precision": 1.0,
+      "recall": 0.9934367541766109,
+      "f1": 0.996707572583059,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": [
+        [
+          1271124,
+          0
+        ],
+        [
+          11,
+          1665
+        ]
+      ],
+      "precision_at_100": 1.0,
+      "precision_at_1000": 1.0,
+      "precision_at_n_frauds": 0.9964200477326969,
+      "layer": "layer2",
+      "validation_average_precision": 0.9986282734823327
+    },
+    "stacking": {
+      "average_precision": 0.9974198197810579,
+      "roc_auc": 0.9991987845305332,
+      "threshold": 0.8764744818413395,
+      "precision": 1.0,
+      "recall": 0.9916467780429594,
+      "f1": 0.9958058717795086,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": [
+        [
+          1271124,
+          0
+        ],
+        [
+          14,
+          1662
+        ]
+      ],
+      "precision_at_100": 1.0,
+      "precision_at_1000": 1.0,
+      "precision_at_n_frauds": 0.9964200477326969,
+      "layer": "layer2",
+      "validation_average_precision": 0.9984293411581864
+    },
+    "adaptive_ensemble": {
+      "average_precision": 0.9974714029857981,
+      "roc_auc": 0.9992128375000513,
+      "threshold": 0.8672389386317141,
+      "precision": 0.9994001199760048,
+      "recall": 0.9940334128878282,
+      "f1": 0.996709542327251,
+      "false_positive_rate": 7.867053096314758e-07,
+      "confusion_matrix": [
+        [
+          1271123,
+          1
+        ],
+        [
+          10,
+          1666
+        ]
+      ],
+      "precision_at_100": 1.0,
+      "precision_at_1000": 1.0,
+      "precision_at_n_frauds": 0.9958233890214797,
+      "layer": "layer2",
+      "validation_average_precision": 0.9986228944239653
+    },
+    "quantum_enhanced": {
+      "average_precision": 0.997518262942271,
+      "roc_auc": 0.9991518720631061,
+      "threshold": 0.5610826192151003,
+      "precision": 1.0,
+      "recall": 0.9946300715990454,
+      "f1": 0.99730780735866,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": [
+        [
+          1271124,
+          0
+        ],
+        [
+          9,
+          1667
+        ]
+      ],
+      "precision_at_100": 1.0,
+      "precision_at_1000": 1.0,
+      "precision_at_n_frauds": 0.9964200477326969,
+      "layer": "layer3",
+      "validation_average_precision": 0.9984694995861946
+    }
+  },
+  "baseline_old_configuration": {
+    "description": "Old algorithms/hyper-parameters, raw amount+balances+type+hour, no engineered features",
+    "test_metrics": {
+      "logistic_regression": {
+        "average_precision": 0.6290482212082124,
+        "roc_auc": 0.989314842921536,
+        "threshold": 0.30364889021883906,
+        "precision": 0.8156097560975609,
+        "recall": 0.4988066825775656,
+        "f1": 0.6190299888930025,
+        "false_positive_rate": 0.00014868730352034893,
+        "confusion_matrix": [
+          [
+            1270935,
+            189
+          ],
+          [
+            840,
+            836
+          ]
+        ],
+        "precision_at_100": 0.99,
+        "precision_at_1000": 0.828,
+        "precision_at_n_frauds": 0.5853221957040573
+      },
+      "decision_tree": {
+        "average_precision": 0.730013186400186,
+        "roc_auc": 0.9922766515837798,
+        "threshold": 0.25158882234982377,
+        "precision": 0.8458574181117534,
+        "recall": 0.785799522673031,
+        "f1": 0.8147231673368389,
+        "false_positive_rate": 0.00018880927431155417,
+        "confusion_matrix": [
+          [
+            1270884,
+            240
+          ],
+          [
+            359,
+            1317
+          ]
+        ],
+        "precision_at_100": 0.49,
+        "precision_at_1000": 0.853,
+        "precision_at_n_frauds": 0.7935560859188544
+      },
+      "xgboost": {
+        "average_precision": 0.9401280859049754,
+        "roc_auc": 0.999132556945692,
+        "threshold": 0.20325561108666818,
+        "precision": 0.9335548172757475,
+        "recall": 0.8383054892601431,
+        "f1": 0.8833700094309965,
+        "false_positive_rate": 7.867053096314757e-05,
+        "confusion_matrix": [
+          [
+            1271024,
+            100
+          ],
+          [
+            271,
+            1405
+          ]
+        ],
+        "precision_at_100": 1.0,
+        "precision_at_1000": 0.993,
+        "precision_at_n_frauds": 0.8675417661097852
+      },
+      "random_forest": {
+        "average_precision": 0.8823812279131877,
+        "roc_auc": 0.9983809602380811,
+        "threshold": 0.08203147676812372,
+        "precision": 0.9215817694369973,
+        "recall": 0.8204057279236276,
+        "f1": 0.8680555555555555,
+        "false_positive_rate": 9.204452122688266e-05,
+        "confusion_matrix": [
+          [
+            1271007,
+            117
+          ],
+          [
+            301,
+            1375
+          ]
+        ],
+        "precision_at_100": 1.0,
+        "precision_at_1000": 0.998,
+        "precision_at_n_frauds": 0.8412887828162291
+      },
+      "soft_voting": {
+        "average_precision": 0.897222261230876,
+        "roc_auc": 0.9988740683935236,
+        "threshold": 0.26981501875408453,
+        "precision": 0.9534206695778749,
+        "recall": 0.7816229116945107,
+        "f1": 0.859016393442623,
+        "false_positive_rate": 5.034913981641445e-05,
+        "confusion_matrix": [
+          [
+            1271060,
+            64
+          ],
+          [
+            366,
+            1310
+          ]
+        ],
+        "precision_at_100": 1.0,
+        "precision_at_1000": 0.995,
+        "precision_at_n_frauds": 0.8281622911694511
+      }
+    }
+  },
+  "robustness": {
+    "recipient_balances_unknown": {
+      "average_precision": 0.996346733746431,
+      "roc_auc": 0.9993787586254351,
+      "threshold": 0.5610826192151003,
+      "precision": 1.0,
+      "recall": 0.9731503579952268,
+      "f1": 0.9863925007559722,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": [
+        [
+          1271124,
+          0
+        ],
+        [
+          45,
+          1631
+        ]
+      ],
+      "precision_at_100": 1.0,
+      "precision_at_1000": 1.0,
+      "precision_at_n_frauds": 0.9946300715990454
+    }
+  },
+  "global_importance": [
+    {
+      "feature": "orig_balance_error",
+      "label": "Sender balance mismatch",
+      "mean_abs_shap": 3.8050637245178223
+    },
+    {
+      "feature": "orig_drained",
+      "label": "Account emptied",
+      "mean_abs_shap": 2.264317274093628
+    },
+    {
+      "feature": "dest_balance_error",
+      "label": "Recipient balance mismatch",
+      "mean_abs_shap": 1.2113515138626099
+    },
+    {
+      "feature": "amount",
+      "label": "Transaction amount",
+      "mean_abs_shap": 0.8783966302871704
+    },
+    {
+      "feature": "newbalanceOrig",
+      "label": "Sender balance after",
+      "mean_abs_shap": 0.6355762481689453
+    },
+    {
+      "feature": "type_CASH_OUT",
+      "label": "Transaction type: cash-out / withdrawal",
+      "mean_abs_shap": 0.5767654776573181
+    },
+    {
+      "feature": "amount_to_balance_ratio",
+      "label": "Share of balance being moved",
+      "mean_abs_shap": 0.5566210746765137
+    },
+    {
+      "feature": "hour_of_day",
+      "label": "Hour of day",
+      "mean_abs_shap": 0.5177255272865295
+    },
+    {
+      "feature": "dest_empty_before",
+      "label": "Recipient account was empty",
+      "mean_abs_shap": 0.43677452206611633
+    },
+    {
+      "feature": "oldbalanceOrg",
+      "label": "Sender balance before",
+      "mean_abs_shap": 0.39614155888557434
+    },
+    {
+      "feature": "oldbalanceDest",
+      "label": "Recipient balance before",
+      "mean_abs_shap": 0.2690884470939636
+    },
+    {
+      "feature": "dest_unchanged",
+      "label": "Recipient balance did not change",
+      "mean_abs_shap": 0.23032061755657196
+    },
+    {
+      "feature": "type_PAYMENT",
+      "label": "Transaction type: payment",
+      "mean_abs_shap": 0.20834718644618988
+    },
+    {
+      "feature": "type_TRANSFER",
+      "label": "Transaction type: transfer",
+      "mean_abs_shap": 0.15221945941448212
+    },
+    {
+      "feature": "newbalanceDest",
+      "label": "Recipient balance after",
+      "mean_abs_shap": 0.07664616405963898
+    },
+    {
+      "feature": "amount_exceeds_balance",
+      "label": "Amount exceeds available balance",
+      "mean_abs_shap": 0.031333230435848236
+    },
+    {
+      "feature": "dest_balance_known",
+      "label": "Recipient balance available",
+      "mean_abs_shap": 0.01311830896884203
+    },
+    {
+      "feature": "is_night",
+      "label": "Night-time transaction",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature": "type_DEBIT",
+      "label": "Transaction type: debit",
+      "mean_abs_shap": 0.0
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# Runtime dependencies of the model API (Render "smartdetector-api"). Pinned to the versions the
+# models in models/ were trained and tested with - pickles are not portable across scikit-learn versions.
+fastapi==0.136.3
+uvicorn==0.48.0
+pydantic==2.13.4
+numpy==2.0.1
+pandas==2.2.2
+scipy>=1.13,<2
+scikit-learn==1.7.2
+xgboost==3.2.0
+joblib>=1.4

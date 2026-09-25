@@ -1,0 +1,5 @@
+# Streamlit dashboard (Render "smartdetector-dashboard"). It only talks to the API over HTTP.
+streamlit==1.57.0
+requests==2.34.2
+pandas==2.2.2
+numpy==2.0.1

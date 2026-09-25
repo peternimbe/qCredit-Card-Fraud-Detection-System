@@ -1,0 +1,15 @@
+paysim.csv
+paysim_engineered.csv
+*.rar
+data/
+logs/
+_legacy/
+models/
+fraud/
+scripts/
+__pycache__/
+*.pyc
+.git
+.env
+php_backend/config.local.php
+php_backend/vendor/

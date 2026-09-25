@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimplePay — Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #eef2ff; }
+        .page-shell { min-height: 100vh; display: grid; place-items: center; padding: 2rem; }
+        .signin-card { width: 100%; max-width: 500px; border-radius: 28px; overflow: hidden; box-shadow: 0 34px 80px rgba(15, 23, 42, 0.14); background: white; }
+        .signin-top { background: linear-gradient(180deg, rgba(26, 54, 93, 0.96), rgba(41, 171, 226, 0.96)); color: #f8fafc; padding: 3rem 2rem 2rem; position: relative; }
+        .signin-top::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(255,255,255,0.18), transparent 28%), radial-gradient(circle at center left, rgba(255,255,255,0.1), transparent 22%); pointer-events: none; }
+        .signin-top-content { position: relative; z-index: 1; }
+        .hero-icon { width: 60px; height: 60px; border-radius: 22px; background: rgba(255,255,255,0.14); display: grid; place-items: center; border: 1px solid rgba(255,255,255,0.2); margin-bottom: 1.5rem; }
+        .auth-form { padding: 2rem; }
+        .auth-input { width: 100%; border-radius: 18px; border: 1px solid #e2e8f0; background: #f8fafc; padding: 1rem 1.1rem; color: #0f172a; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .auth-input:focus { border-color: #1d4ed8; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12); }
+        .btn-primary { width: 100%; border-radius: 20px; padding: 1rem; background: #1a365d; color: white; font-weight: 600; box-shadow: 0 16px 32px rgba(26, 54, 93, 0.18); transition: background-color 0.2s ease, transform 0.2s ease; }
+        .btn-primary:hover { background: #15304f; transform: translateY(-1px); }
+        .signin-note { color: #64748b; font-size: 0.95rem; line-height: 1.7; }
+        .feedback { min-height: 1.25rem; }
+        .link-row { margin-top: 1rem; text-align: center; }
+        .link-row a { color: #1a365d; font-weight: 600; text-decoration: none; }
+        .link-row a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body class="page-shell">
+    <div class="signin-card">
+        <div class="signin-top">
+            <div class="signin-top-content">
+                <div class="hero-icon">
+                    <i data-lucide="user-plus" class="w-6 h-6 text-white"></i>
+                </div>
+                <h1 class="text-3xl font-semibold">Create your account</h1>
+                <p class="mt-3 text-slate-200 text-sm leading-7">Get started with SimplePay.</p>
+            </div>
+        </div>
+
+        <div class="auth-form">
+            <form id="signupForm" class="space-y-5" onsubmit="event.preventDefault(); submitSignup();">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Full name</label>
+                    <input id="name" type="text" placeholder="Jane Doe" class="auth-input" autocomplete="name" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
+                    <input id="email" type="email" placeholder="jane@example.com" class="auth-input" autocomplete="email" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Account number</label>
+                    <input id="accountNumber" type="text" placeholder="1234567890" class="auth-input" autocomplete="off" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
+                    <input id="password" type="password" placeholder="••••••••" class="auth-input" autocomplete="new-password" required>
+                </div>
+                <button type="submit" class="btn-primary">Create account</button>
+                <div id="signupFeedback" class="feedback text-sm text-red-500 text-center hidden"></div>
+            </form>
+
+            <div class="link-row">
+                <p class="text-slate-500">Already have an account? <a href="signin.html">Sign in</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        async function submitSignup() {
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const accountNumber = document.getElementById('accountNumber').value.trim();
+            const password = document.getElementById('password').value;
+            const feedback = document.getElementById('signupFeedback');
+
+            feedback.classList.add('hidden');
+            feedback.textContent = '';
+
+            const payload = { name, email, account_number: accountNumber, password };
+
+            try {
+                const response = await fetch('../php_backend/sign_up.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    feedback.textContent = result.error || 'Unable to create account. Please try again.';
+                    feedback.classList.remove('hidden');
+                    return;
+                }
+
+                localStorage.setItem('simplepay_user_email', email);
+                localStorage.setItem('simplepay_user_name', name);
+                localStorage.setItem('simplepay_user_account', accountNumber);
+                window.location.href = 'signin.html';
+            } catch (error) {
+                feedback.textContent = 'Network error. Please try again later.';
+                feedback.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

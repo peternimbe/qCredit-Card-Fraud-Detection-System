@@ -1,0 +1,19 @@
+# SimplePay sandbox front-end (app/) + PHP storage backend (php_backend/) for Render.
+# Build context is the repository root (see render.yaml).
+FROM php:8.2-apache
+
+RUN docker-php-ext-install pdo_mysql \
+    && a2enmod headers rewrite \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY app/ /var/www/html/app/
+COPY php_backend/ /var/www/html/php_backend/
+COPY docker/index.php /var/www/html/index.php
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh && chown -R www-data:www-data /var/www/html
+
+# Render injects PORT; the entrypoint points Apache at it.
+ENV PORT=10000
+EXPOSE 10000
+ENTRYPOINT ["entrypoint.sh"]
+CMD ["apache2-foreground"]

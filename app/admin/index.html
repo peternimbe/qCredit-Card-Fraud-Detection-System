@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Fraud Detection | Monitoring Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: Inter, system-ui, sans-serif; }
+        .bg-ocean { background-color: #00066e; }
+        .text-teal { color: #48BFE3; }
+        .border-teal { border-color: #48BFE3; }
+        .gradient-teal { background: linear-gradient(135deg, #00066e 0%, #48BFE3 100%); }
+        .badge-pill { border-radius: 999px; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100">
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-72 bg-slate-900 p-6 flex flex-col border-r border-slate-800">
+            <div class="mb-10">
+                <h1 class="text-3xl font-extrabold tracking-tight gradient-teal bg-clip-text text-transparent">SMART <span class="text-white">DETECTOR</span></h1>
+                <p class="mt-2 text-slate-400 text-sm">Creditcard Fraud Monitoring</p>
+            </div>
+            <nav class="space-y-3 flex-1">
+                <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-800 border-l-4 border-teal text-teal shadow-sm">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Live Monitor</span>
+                </a>
+                <a href="history.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 transition text-slate-300">
+                    <i class="fas fa-history"></i>
+                    <span>Alert History</span>
+                </a>
+                <a href="settings.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 transition text-slate-300">
+                    <i class="fas fa-microchip"></i>
+                    <span>Model Settings</span>
+                </a>
+            </nav>
+            <div class="mt-auto pt-6 border-t border-slate-800">
+                <div class="flex items-center gap-2 text-xs text-slate-500">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <span>Quantum Optimization Active</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto p-8">
+            <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
+                <div>
+                    <h2 class="text-3xl font-semibold">Real-Time Intelligence</h2>
+                    <p class="mt-2 text-slate-400">Dashboard</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full sm:w-auto">
+                    <div class="bg-slate-900 p-5 rounded-3xl border border-slate-800">
+                        <p class="text-slate-400 text-sm">Alerts Today</p>
+                        <p id="alertsToday" class="text-3xl font-bold text-teal mt-3">0</p>
+                    </div>
+                    <div class="bg-slate-900 p-5 rounded-3xl border border-slate-800">
+                        <p class="text-slate-400 text-sm">Threshold</p>
+                        <p id="thresholdDisplay" class="text-3xl font-bold text-rose-400 mt-3">75%</p>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-12 gap-6">
+                <section class="col-span-12 lg:col-span-7 bg-slate-900 rounded-3xl border border-slate-800 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-xl font-bold">Transaction Screening</h3>
+                            <p class="text-sm text-slate-400">Live queue with risk scores and status.</p>
+                        </div>
+                        <button id="refreshStream" class="rounded-3xl bg-slate-800 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700 transition">Refresh</button>
+                    </div>
+                    <div class="overflow-hidden rounded-3xl border border-slate-800">
+                        <table class="w-full text-left text-slate-200 divide-y divide-slate-800">
+                            <thead class="bg-slate-950 text-slate-400 text-xs uppercase tracking-[0.15em]">
+                                <tr>
+                                    <th class="py-4 px-4">Timestamp</th>
+                                    <th class="py-4 px-4">Amount</th>
+                                    <th class="py-4 px-4">Risk</th>
+                                    <th class="py-4 px-4">Account</th>
+                                    <th class="py-4 px-4 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transaction-feed" class="bg-slate-900"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="col-span-12 lg:col-span-5 space-y-6">
+                    <div class="bg-slate-900 rounded-3xl border border-slate-800 p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold">Insights</h3>
+                                <p class="text-sm text-slate-400">Why was the last transaction flagged?</p>
+                            </div>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300">Live</span>
+                        </div>
+                        <canvas id="xaiChart" height="240"></canvas>
+                        <div class="mt-6 p-4 bg-slate-950 rounded-3xl border border-slate-800">
+                            <p class="text-xs text-teal uppercase tracking-[0.2em] mb-2">Model Decision Log</p>
+                            <p id="decisionLog" class="text-sm text-slate-300">The Ensemble Model flagged this due to a 400% deviation from average spend and a high-risk merchant ID.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="detailsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 transition-all duration-300">
+        <div class="w-full max-w-5xl rounded-[2rem] bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <div class="flex justify-between items-center px-8 py-5 border-b border-slate-800 bg-slate-950/40">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-teal/10 flex items-center justify-center text-teal">
+                        <i class="fas fa-shield-halved text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 id="modalTitle" class="text-lg font-bold text-white tracking-tight">Transaction Details</h3>
+                        <p id="modalSubtitle" class="text-xs text-slate-400 mt-0.5">Fraud Analytic Window</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+
+            <div class="p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-y-auto flex-1">
+                
+                <div class="lg:col-span-4 space-y-3">
+                    <h4 class="text-xs uppercase tracking-[0.15em] text-slate-400 font-bold flex items-center gap-2 mb-2">
+                        <i class="fas fa-list text-[10px] text-teal"></i> Transactions Details
+                    </h4>
+                    
+                    <div class="bg-slate-950/50 rounded-2xl border border-slate-800/60 overflow-hidden divide-y divide-slate-800/40">
+                        <div class="p-4 flex items-center justify-between hover:bg-slate-950/80 transition">
+                            <div>
+                                <span class="text-xs text-slate-400 block">Amount</span>
+                                <span id="detailAmount" class="text-base font-bold text-white mt-0.5 block">GHS 0.00</span>
+                            </div>
+                            <!-- <i class="fas fa-wallet text-slate-600 text-sm"></i> -->
+                        </div>
+
+                        <div class="p-4 flex items-center justify-between hover:bg-slate-950/80 transition">
+                            <div>
+                                <span class="text-xs text-slate-400 block">Merchant Endpoint</span>
+                                <span id="detailMerchant" class="text-base font-semibold text-slate-200 mt-0.5 block">GlobalMart</span>
+                            </div>
+                        </div>
+
+                        <div class="p-4 flex items-center justify-between hover:bg-slate-950/80 transition">
+                            <div>
+                                <span class="text-xs text-slate-400 block">Channel Type</span>
+                                <span id="detailType" class="text-sm font-semibold text-slate-300 mt-0.5 block">Online Payment</span>
+                            </div>
+                        </div>
+
+                        <div class="p-4 flex items-center justify-between hover:bg-slate-950/80 transition">
+                            <div>
+                                <span class="text-xs text-slate-400 block">System Timestamp</span>
+                                <span id="detailTimestamp" class="text-sm font-mono text-slate-300 mt-0.5 block">21:05:12</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 flex flex-col justify-between bg-slate-950/30 border border-slate-800 p-5 rounded-2xl">
+                    <div>
+                        <h4 class="text-xs uppercase tracking-[0.15em] text-slate-400 font-bold flex items-center gap-2 mb-5">
+                            <i class="fas fa-brain text-[10px] text-rose-400"></i> Model Analysis
+                        </h4>
+                        
+                        <div class="relative w-36 h-36 mx-auto my-3 flex items-center justify-center bg-slate-950 rounded-full border border-slate-800 shadow-inner">
+                            <div class="text-center z-10">
+                                <span class="text-xs uppercase tracking-wider text-slate-500 block">Risk Score</span>
+                                <span id="detailRisk" class="text-3xl font-black text-rose-400 tracking-tight mt-0.5 block">82%</span>
+                            </div>
+                            <div class="absolute inset-2 border border-dashed border-slate-800 rounded-full animate-[spin_40s_linear_infinite]"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 mt-4">
+                        <div class="bg-slate-950/60 rounded-xl p-3.5 border border-slate-800/80">
+                            <div class="flex justify-between items-center text-xs mb-1.5">
+                                <span class="text-slate-400">Model Confidence</span>
+                                <span id="confidenceText" class="font-mono text-teal font-semibold">0% confidence</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div id="confidenceBar" class="h-1.5 rounded-full bg-teal transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-rose-950/10 border border-rose-500/20 rounded-xl">
+                            <span class="text-[10px] uppercase font-bold tracking-wider text-rose-400 block mb-1">Diagnostic Log Reason</span>
+                            <p id="detailReason" class="text-xs text-slate-300 leading-relaxed">High-risk merchant / unusual pattern observed relative to baseline features.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 flex flex-col">
+                    <h4 class="text-xs uppercase tracking-[0.15em] text-slate-400 font-bold flex items-center gap-2 mb-3">
+                        <i class="fas fa-chart-simple text-[10px] text-teal"></i> XAI SHAP Features
+                    </h4>
+                    <p class="text-[11px] text-slate-500 leading-normal mb-3">
+                        Individual component variance impact ratios calculated.
+                    </p>
+                    
+                    <div class="bg-slate-950/50 rounded-2xl border border-slate-800/60 p-4 flex-1 overflow-y-auto max-h-[260px]">
+                        <div id="featureList" class="space-y-3">
+                            </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="px-8 py-4 bg-slate-950/40 border-t border-slate-800 flex justify-end">
+                <button onclick="closeModal()" class="rounded-xl bg-slate-800 border border-slate-700 px-5 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:text-white transition-all">
+                    Dismiss Window
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden rounded-3xl border border-slate-700 bg-slate-900 px-5 py-4 shadow-2xl">
+        <div class="flex items-start gap-3">
+            <div class="text-rose-400 mt-1"><i class="fas fa-exclamation-triangle"></i></div>
+            <div>
+                <p id="toastTitle" class="font-semibold">Alert</p>
+                <p id="toastMessage" class="text-slate-300 text-sm">Suspicious transaction detected.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../runtime-config.js"></script>
+    <script src="./admin-common.js"></script>
+    <script>
+        const transactionFeed = document.getElementById('transaction-feed');
+        const alertsToday = document.getElementById('alertsToday');
+        const thresholdDisplay = document.getElementById('thresholdDisplay');
+        const decisionLog = document.getElementById('decisionLog');
+        const toast = document.getElementById('toast');
+        const toastTitle = document.getElementById('toastTitle');
+        const toastMessage = document.getElementById('toastMessage');
+
+        let xaiChart;
+
+        async function fetchTransactionsFromServer(limit = 8) {
+            try {
+                const resp = await fetch('../../php_backend/get_transactions.php?limit=' + encodeURIComponent(limit));
+                if (!resp.ok) return [];
+                const data = await resp.json();
+                return data.transactions || [];
+            } catch (err) {
+                console.warn('Failed to fetch transactions from server', err);
+                return [];
+            }
+        }
+
+        async function renderFeed() {
+            const txs = await fetchTransactionsFromServer(8);
+            if (!txs || !txs.length) {
+                transactionFeed.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-10 text-center text-sm text-slate-400">
+                            No live model data available yet. Start the backend and store a scored transaction to populate this dashboard.
+                        </td>
+                    </tr>
+                `;
+                alertsToday.innerText = '0';
+                thresholdDisplay.innerText = `${loadSettings().alertThreshold}%`;
+                decisionLog.innerText = 'No live model decision available yet.';
+                return;
+            }
+
+            transactionFeed.innerHTML = txs.map(tx => `
+                <tr class="border-t border-slate-800 hover:bg-slate-900 transition">
+                    <td class="py-4 px-4 text-sm text-slate-400">${formatTime(tx.timestamp)}</td>
+                    <td class="py-4 px-4 font-semibold">${formatCurrency(tx.amount)}</td>
+                    <td class="py-4 px-4">
+                        <div class="w-28 bg-slate-800 rounded-full h-2 overflow-hidden">
+                            <div class="h-2 rounded-full ${tx.riskScore > 70 ? 'bg-rose-500' : 'bg-emerald-500'}" style="width: ${tx.riskScore}%"></div>
+                        </div>
+                        <span class="text-[11px] text-slate-400 mt-1 block">${tx.riskScore}%</span>
+                    </td>
+                    <td class="py-4 px-4 text-sm text-slate-200">${tx.merchant}</td>
+                    <td class="py-4 px-4 text-right">
+                        <button onclick="openTransactionDetails('${tx.id}')" class="text-xs px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 transition">Details</button>
+                    </td>
+                </tr>
+            `).join('');
+            try { saveTransactions(txs); } catch (e) { console.warn('Could not save transactions locally', e); }
+            renderSummaryFromList(txs);
+            const liveTx = txs[0];
+            renderXAI(liveTx);
+        }
+
+        function renderSummaryFromList(txs) {
+            const fraudCount = (txs || []).filter(item => item.status === 'Fraud').length;
+            alertsToday.innerText = fraudCount;
+            thresholdDisplay.innerText = `${loadSettings().alertThreshold}%`;
+        }
+
+        function renderXAI(tx) {
+            if (!tx) {
+                decisionLog.innerText = 'No live model decision available yet.';
+                if (xaiChart) xaiChart.destroy();
+                return;
+            }
+
+            const features = buildXAIExplainability(tx);
+            if (!features.length) {
+                if (xaiChart) xaiChart.destroy();
+                decisionLog.innerText = buildRiskReason(tx) + '.';
+                return;
+            }
+
+            const data = {
+                labels: features.map(item => item.label),
+                datasets: [{
+                    label: 'Transaction signal strength',
+                    data: features.map(item => item.value),
+                    backgroundColor: features.map(item => item.value > 60 ? '#fb7185' : '#48BFE3'),
+                    borderRadius: 6
+                }]
+            };
+            const config = {
+                type: 'bar',
+                data,
+                options: {
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false, title: { display: true, text: 'Observed signal strength', color: '#94a3b8' } },
+                        y: { ticks: { color: '#94a3b8' } }
+                    }
+                }
+            };
+            if (xaiChart) xaiChart.destroy();
+            xaiChart = new Chart(document.getElementById('xaiChart').getContext('2d'), config);
+            decisionLog.innerText = buildRiskReason(tx) + '.';
+        }
+
+        async function openTransactionDetails(id) {
+            const txs = await fetchTransactionsFromServer(20);
+            const tx = (txs || []).find(item => item.id === id) || loadTransactions().find(item => item.id === id);
+            if (!tx) return;
+            const featureList = buildXAIExplainability(tx);
+            document.getElementById('modalTitle').innerText = `Transaction ${tx.id}`;
+            document.getElementById('detailAmount').innerText = formatCurrency(tx.amount);
+            document.getElementById('detailMerchant').innerText = tx.merchant;
+            document.getElementById('detailType').innerText = tx.type;
+            document.getElementById('detailRisk').innerText = `${tx.riskScore}%`;
+            document.getElementById('detailReason').innerText = buildRiskReason(tx);
+            document.getElementById('detailTimestamp').innerText = formatTime(tx.timestamp);
+            document.getElementById('confidenceBar').style.width = `${tx.riskScore}%`;
+            document.getElementById('confidenceText').innerText = `${tx.riskScore}% confidence`;
+
+            if (!featureList.length) {
+                document.getElementById('featureList').innerHTML = '<div class="text-sm text-slate-400">No live model explanation available for this transaction.</div>';
+            } else {
+                document.getElementById('featureList').innerHTML = featureList.map(feature => `
+                    <div class="space-y-1 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/40">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400 font-mono">${feature.label}</span>
+                            <span class="font-semibold ${feature.value > 60 ? 'text-rose-400' : 'text-teal'}">${feature.value}%</span>
+                        </div>
+                        <div class="w-full bg-slate-950 h-1 rounded-full overflow-hidden">
+                            <div class="h-1 rounded-full ${feature.value > 60 ? 'bg-rose-500' : 'bg-teal'}" style="width: ${feature.value}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('detailsModal').classList.remove('hidden');
+            document.getElementById('detailsModal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('detailsModal').classList.add('hidden');
+            document.getElementById('detailsModal').classList.remove('flex');
+        }
+
+        function toastAlert(title, message) {
+            toastTitle.innerText = title;
+            toastMessage.innerText = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 5500);
+        }
+
+        async function refreshStream() {
+            const txs = await fetchTransactionsFromServer(1);
+            if (txs && txs.length > 0) {
+                const tx = txs[0];
+                renderFeed();
+                renderXAI(tx);
+                if (tx.status === 'Fraud') {
+                    toastAlert('Fraud Alert', `${formatCurrency(tx.amount)} at ${tx.merchant} flagged as suspicious.`);
+                }
+            } else {
+                renderFeed();
+                decisionLog.innerText = 'No live model decision available yet.';
+            }
+        }
+
+        document.getElementById('refreshStream').addEventListener('click', refreshStream);
+
+        function startLiveStream() {
+            setInterval(() => {
+                if (!loadSettings().liveMonitoring) return;
+                refreshStream();
+            }, 9000);
+        }
+
+        (async function() {
+            const txs = await fetchTransactionsFromServer(8);
+            if (txs && txs.length > 0) {
+                renderXAI(txs[0]);
+            } else {
+                decisionLog.innerText = 'No live model decision available yet.';
+            }
+            renderFeed();
+            startLiveStream();
+        })();
+    </script>
+</body>
+</html>

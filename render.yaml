@@ -1,0 +1,65 @@
+# Render Blueprint: New + -> Blueprint -> pick this repository.
+# Three services: the model API, the Streamlit dashboard, and the PHP sandbox app.
+# MySQL is NOT provided by Render - use any managed MySQL (Aiven, TiDB Cloud, PlanetScale, ...)
+# and import php_backend/schema.sql into it.
+services:
+  # ------------------------------------------------------------------ model API
+  - type: web
+    name: smartdetector-api
+    runtime: python
+    plan: free
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.11
+      - key: ALLOWED_ORIGINS        # comma-separated origins allowed to call the API, e.g. the web + dashboard URLs
+        value: "*"
+      - key: HIGH_RISK_COUNTRIES    # optional watch list for the context rules, e.g. "XX,YY"
+        value: ""
+      - key: HIGH_VALUE_AMOUNT
+        value: "5000"
+
+  # ------------------------------------------------------------------ Streamlit dashboard
+  - type: web
+    name: smartdetector-dashboard
+    runtime: python
+    plan: free
+    buildCommand: pip install --upgrade pip && pip install -r requirements-dashboard.txt
+    startCommand: streamlit run streamlit_app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.11
+      - key: API_URL                # public URL of smartdetector-api, e.g. https://smartdetector-api.onrender.com
+        sync: false
+
+  # ------------------------------------------------------------------ PHP sandbox app + storage backend
+  - type: web
+    name: smartdetector-web
+    runtime: docker
+    plan: free
+    dockerfilePath: ./docker/Dockerfile.web
+    dockerContext: .
+    healthCheckPath: /app/signin.html
+    envVars:
+      - key: API_URL                # public URL of smartdetector-api
+        sync: false
+      - key: APP_BASE_URL           # public URL of this service + /app (used in alert e-mails)
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_NAME
+        value: fraud_detection
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSL                 # managed MySQL normally requires TLS
+        value: "1"
+      - key: SMTP_USERNAME          # optional: e-mail alerts (leave SMTP_PASSWORD unset to disable)
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false

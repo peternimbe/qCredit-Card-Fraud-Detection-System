@@ -1,0 +1,25 @@
+# --- large / regenerable data ---
+paysim.csv
+paysim_engineered.csv
+*.rar
+data/cache/
+logs/
+_legacy/
+
+# --- secrets & local config ---
+.env
+php_backend/config.local.php
+
+# --- python ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# --- editors / os ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# models/ IS committed on purpose: it is ~1 MB and Render deploys it with the API.

@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimplePay — Account</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .brand { background: linear-gradient(135deg,#4da9e0,#29abe2); }
+        .password-modal-backdrop,
+        .action-modal-backdrop {
+            animation: fadeIn 0.25s ease-in-out;
+        }
+        .password-modal-content,
+        .action-modal-content {
+            animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .action-modal-card {
+            position: relative;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            box-shadow: 0 32px 96px -16px rgba(15, 23, 42, 0.45), 0 16px 40px -24px rgba(15, 23, 42, 0.28);
+            background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(241, 245, 249, 0.96));
+            border-radius: 32px;
+            overflow: visible;
+        }
+        .action-modal-header {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+        }
+        .action-modal-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #334155;
+        }
+        .action-modal-input {
+            width: 100%;
+            padding: 1rem 1.1rem;
+            border-radius: 1.25rem;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: #f8fafc;
+            color: #0f172a;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .action-modal-input:focus {
+            border-color: #1d4ed8;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+        }
+        .action-modal-actions button {
+            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .action-modal-actions button:hover {
+            transform: translateY(-1px);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(60px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .lock-pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .notification {
+            animation: slideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .toast-wrapper {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 60;
+            width: calc(100% - 2rem);
+            max-width: 420px;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+        }
+        .toast-message {
+            pointer-events: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 3rem;
+            padding: 0.9rem 1.3rem;
+            border-radius: 9999px;
+            box-shadow: 0 24px 72px rgba(15, 23, 42, 0.22);
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .toast-visible .toast-message {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast-success { background: #16a34a; color: white; }
+        .toast-error { background: #dc2626; color: white; }
+        .toast-warning { background: #f59e0b; color: #0f172a; }
+        .toast-info { background: #0f172a; color: white; }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center min-h-screen">
+
+    <div class="w-full max-w-md bg-white min-h-screen relative shadow-2xl flex flex-col">
+        
+        <header class="fixed top-0 w-full max-w-md px-6 pt-8 pb-4 flex justify-between items-center bg-white shadow-md z-30">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">SimplePay</h1>
+                <p id="headerBalance" class="text-xs text-gray-500 mt-1">Balance: GHS 0.00</p>
+            </div>
+            <div class="flex gap-4 items-center text-gray-600">
+                <i data-lucide="help-circle" class="w-6 h-6"></i>
+                <div class="relative">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">7</span>
+                </div>
+                <i data-lucide="message-circle" class="w-6 h-6"></i>
+                <!-- <button onclick="logout()" class="text-gray-600 hover:text-[#1a365d] transition-colors" aria-label="Sign out"><i data-lucide="log-out" class="w-6 h-6"></i></button> -->
+            </div>
+        </header>
+
+        <main class="flex-1 px-4 overflow-y-auto pt-32 pb-28">
+
+            <!-- <div class="mt-4 mb-4">
+                <h2 class="text-xl font-bold text-gray-900">Account</h2>
+                <p class="text-gray-500 text-sm mt-1">Send, deposit, withdraw, or pay — right from here.</p>
+            </div> -->
+
+            <div class="brand rounded-3xl p-4 text-white h-44 flex flex-col justify-between shadow-lg mb-6">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm opacity-90">Available Balance</p>
+                        <p id="balanceDisplay" class="text-3xl font-bold mt-1">GHS 0.00</p>
+                    </div>
+                    <div class="text-right text-sm">
+                        <p id="accountId" class="font-semibold">ACCT • 1234</p>
+                        <p class="text-xs opacity-80">Active</p>
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-3">
+                    <button onclick="openAction('deposit')" class="bg-white text-[#1a365d] py-2 px-4 rounded-2xl font-semibold">Deposit</button>
+                    <button onclick="openAction('withdraw')" class="bg-white text-[#1a365d] py-2 px-4 rounded-2xl font-semibold">Withdraw</button>
+                    <button onclick="openAction('send')" class="bg-white text-[#1a365d] py-2 px-4 rounded-2xl font-semibold">Send</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white rounded-2xl p-4 shadow-sm">
+                    <h3 class="font-bold">Quick Pay</h3>
+                    <p class="text-xs text-gray-500 mt-2">Pay a merchant or friend.</p>
+                    <button onclick="openAction('pay')" class="mt-3 w-full py-2 bg-[#1a365d] text-white rounded-xl">Pay</button>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm">
+                    <h3 class="font-bold">Top Up</h3>
+                    <p class="text-xs text-gray-500 mt-2">Add money to your account.</p>
+                    <button onclick="openAction('deposit')" class="mt-3 w-full py-2 bg-[#1a365d] text-white rounded-xl">Top up</button>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm col-span-2">
+                    <h3 class="font-bold">Recent Transactions</h3>
+                    <div id="recentList" class="mt-3 space-y-3 text-sm text-gray-700"></div>
+                    <a class="text-sm text-[#1a365d] font-semibold mt-2 inline-block" href="history.html">View all</a>
+                </div>
+            </div>
+
+        </main>
+
+        <nav class="fixed bottom-0 w-full max-w-md bg-white border-t border-gray-100 px-6 py-3 flex justify-between items-center shadow-lg z-30">
+            <a class="flex flex-col items-center gap-1 text-[#1a365d]" href="#">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 text-[#1a365d]"></i>
+                <span class="text-[10px] font-bold">Account</span>
+            </a>
+            <a class="flex flex-col items-center gap-1 text-gray-400" href="operations.html">
+                <i data-lucide="compass" class="w-6 h-6"></i>
+                <span class="text-[10px]">Actions</span>
+            </a>
+            <a class="flex flex-col items-center gap-1 text-gray-400" href="history.html">
+                <i data-lucide="clock" class="w-6 h-6"></i>
+                <span class="text-[10px]">History</span>
+            </a>
+            <a class="flex flex-col items-center gap-1 text-gray-400" href="profile.html">
+                <i data-lucide="user" class="w-6 h-6"></i>
+                <span class="text-[10px]">Profile</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Action Modal -->
+    <div id="actionOverlay" class="fixed inset-0 bg-slate-950/20 z-40 hidden items-end justify-center action-modal-backdrop px-4">
+        <div class="w-full max-w-md rounded-[32px] p-6 mx-auto mb-8 action-modal-card action-modal-content">
+            <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-[#1a365d] to-[#29abe2] shadow-xl flex items-center justify-center text-white">
+                <i data-lucide="credit-card" class="w-6 h-6"></i>
+            </div>
+            <div class="pt-10 action-modal-header pb-4 mb-4 text-center">
+                <h2 id="actionTitle" class="text-xl font-semibold text-slate-900">Action</h2>
+                <p id="actionNote" class="text-sm text-slate-500 mt-1">Perform the operation.</p>
+            </div>
+
+            <div class="mt-4 space-y-4" id="actionForm"></div>
+
+            <div class="mt-6 flex gap-3 action-modal-actions">
+                <button onclick="closeAction()" class="flex-1 py-3 border border-slate-200 rounded-2xl text-slate-700 bg-white hover:bg-slate-50">Cancel</button>
+                <button id="actionSubmit" class="flex-1 py-3 bg-[#1a365d] text-white rounded-2xl shadow-lg hover:bg-[#15304f]">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fraud Alert Notification -->
+    <div id="fraudNotification" class="fixed top-24 left-4 right-4 max-w-sm mx-auto z-50 hidden notification">
+        <div class="bg-red-50 border-2 border-red-300 rounded-2xl p-4 shadow-lg">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-bold text-red-800">Fraud Alert ⚠️</h4>
+                    <p id="fraudMessage" class="text-sm text-red-700 mt-1">Suspicious activity detected</p>
+                </div>
+                <button onclick="closeFraudNotification()" class="text-red-400 hover:text-red-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="appToast" class="toast-wrapper hidden">
+        <div id="appToastMessage" class="toast-message toast-success"></div>
+    </div>
+
+    <!-- Beautiful Password Confirmation Modal -->
+    <div id="passwordOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center password-modal-backdrop">
+        <div class="w-full max-w-sm mx-4 bg-white rounded-3xl shadow-2xl overflow-hidden password-modal-content">
+            <!-- Header -->
+            <div class="bg-gradient-to-br from-[#1a365d] to-[#29abe2] px-8 pt-12 pb-8 text-center">
+                <div class="flex justify-center mb-4">
+                    <div class="relative">
+                        <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center">
+                            <i data-lucide="lock" class="w-10 h-10 text-white lock-pulse"></i>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">Confirm Transaction</h3>
+                <p class="text-blue-100 text-sm">Enter your password to proceed</p>
+            </div>
+
+            <!-- Content -->
+            <div class="px-8 py-8">
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-3">Transaction Password</label>
+                    <div class="relative">
+                        <input 
+                            id="passwordInput" 
+                            type="password" 
+                            placeholder="••••••••" 
+                            class="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:border-[#1a365d] focus:outline-none transition-colors duration-200 text-center text-lg tracking-widest"
+                            autocomplete="off"
+                        />
+                        <button 
+                            type="button"
+                            onclick="togglePasswordVisibility()"
+                            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            <i id="toggleIcon" data-lucide="eye" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">Default password: 1234</p>
+                </div>
+
+                <!-- Strength indicator (decorative) -->
+                <div class="mb-6">
+                    <div class="flex gap-1">
+                        <div class="flex-1 h-1 bg-green-400 rounded-full"></div>
+                        <div class="flex-1 h-1 bg-green-400 rounded-full"></div>
+                        <div class="flex-1 h-1 bg-gray-200 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="px-8 pb-8 flex gap-3">
+                <button 
+                    onclick="closePasswordModal()" 
+                    class="flex-1 py-4 border-2 border-gray-200 text-gray-700 font-semibold rounded-2xl hover:bg-gray-50 transition-colors duration-200"
+                >
+                    Cancel
+                </button>
+                <button 
+                    id="passwordConfirmBtn"
+                    onclick="verifyPassword()" 
+                    class="flex-1 py-4 bg-gradient-to-r from-[#1a365d] to-[#29abe2] text-white font-semibold rounded-2xl hover:shadow-lg transition-all duration-200 active:scale-95"
+                >
+                    <span id="confirmBtnText">Confirm</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="runtime-config.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // Simple client-side state using localStorage
+        const AUTH_KEY = 'simplepay_auth';
+        const USER_KEY = 'simplepay_user';
+        const USER_EMAIL_KEY = 'simplepay_user_email';
+        const USER_NAME_KEY = 'simplepay_user_name';
+        const USER_ACCOUNT_KEY = 'simplepay_user_account';
+        const BAL_KEY = 'simplepay_balance';
+        const TX_KEY = 'simplepay_transactions';
+        const HOSTNAME = window.location.hostname;
+        // API base comes from runtime-config.js (Render) and falls back to <this host>:8000 for local XAMPP use.
+        const MODEL_API_BASE = (window.SMARTDETECTOR_API_URL || `${window.location.protocol}//${HOSTNAME}:8000`).replace(/\/+$/, '');
+        const PYTHON_MODEL_API = `${MODEL_API_BASE}/predict_named`;
+        const PHP_STORAGE_API = '../php_backend/transaction_api.php';
+        const DEFAULT_PASSWORD = '1234';
+        const DEFAULT_USERNAME = 'admin';
+        
+        // Store pending action
+        let pendingAction = null;
+
+        function sanitizeUserKey(user){
+            return String(user || 'guest').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'guest';
+        }
+
+        function getScopedStorageKey(baseKey){
+            const userKey = sanitizeUserKey(localStorage.getItem(USER_KEY));
+            return userKey ? `${baseKey}_${userKey}` : baseKey;
+        }
+
+        function isAuthenticated(){
+            return localStorage.getItem(AUTH_KEY) === 'true';
+        }
+
+        function logout(){
+            localStorage.removeItem(AUTH_KEY);
+            localStorage.removeItem(USER_KEY);
+            location.href = 'signin.html';
+        }
+
+        function requireAuth(){
+            if(!isAuthenticated()){
+                location.href = 'signin.html';
+            }
+        }
+
+        function signInUser(username){
+            localStorage.setItem(AUTH_KEY, 'true');
+            localStorage.setItem(USER_KEY, username || DEFAULT_USERNAME);
+        }
+
+        function getUserEmail(){
+            return localStorage.getItem(USER_EMAIL_KEY) || '';
+        }
+
+        function getDeviceId(){
+            const key = 'simplepay_device_id';
+            let deviceId = localStorage.getItem(key);
+            if (!deviceId) {
+                deviceId = `browser_${crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}_${Math.random().toString(36).slice(2)}`}`;
+                localStorage.setItem(key, deviceId);
+            }
+            return deviceId;
+        }
+
+        function distanceBetweenCoordinates(firstLatitude, firstLongitude, secondLatitude, secondLongitude){
+            const toRadians = value => value * Math.PI / 180;
+            const latitudeDelta = toRadians(secondLatitude - firstLatitude);
+            const longitudeDelta = toRadians(secondLongitude - firstLongitude);
+            const a = Math.sin(latitudeDelta / 2) ** 2
+                + Math.cos(toRadians(firstLatitude)) * Math.cos(toRadians(secondLatitude))
+                * Math.sin(longitudeDelta / 2) ** 2;
+            return 6371 * 2 * Math.asin(Math.sqrt(a));
+        }
+
+        function captureTransactionLocation(){
+            const deviceId = getDeviceId();
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    resolve({
+                        device_id: deviceId,
+                        device_time_ms: Date.now(),
+                        device_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || null,
+                        device_timezone_offset_minutes: new Date().getTimezoneOffset(),
+                        location_source: 'unavailable'
+                    });
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => resolve({
+                        device_id: deviceId,
+                        device_time_ms: Date.now(),
+                        device_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || null,
+                        device_timezone_offset_minutes: new Date().getTimezoneOffset(),
+                        location_latitude: Number(position.coords.latitude.toFixed(7)),
+                        location_longitude: Number(position.coords.longitude.toFixed(7)),
+                        location_accuracy_m: Number(position.coords.accuracy.toFixed(2)),
+                        location_timestamp: position.timestamp,
+                        location_source: 'browser_geolocation'
+                    }),
+                    (error) => resolve({
+                        device_id: deviceId,
+                        device_time_ms: Date.now(),
+                        device_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || null,
+                        device_timezone_offset_minutes: new Date().getTimezoneOffset(),
+                        location_source: error.code === error.PERMISSION_DENIED ? 'permission_denied' : 'unavailable',
+                        location_error_code: error.code
+                    }),
+                    { enableHighAccuracy: false, maximumAge: 60000, timeout: 10000 }
+                );
+            });
+        }
+
+        async function confirmTransaction(createTransaction){
+            const location = await captureTransactionLocation();
+            openPasswordModal(() => createTransaction(location));
+        }
+
+        function getBalance(){
+            return parseFloat(localStorage.getItem(getScopedStorageKey(BAL_KEY)) || '0');
+        }
+        function setBalance(v){
+            localStorage.setItem(getScopedStorageKey(BAL_KEY), v.toFixed(2));
+            renderBalance();
+        }
+        function getTx(){
+            try {
+                return JSON.parse(localStorage.getItem(getScopedStorageKey(TX_KEY)) || '[]');
+            } catch (error) {
+                return [];
+            }
+        }
+        function pushTx(tx){
+            const arr = getTx(); arr.unshift(tx); localStorage.setItem(getScopedStorageKey(TX_KEY), JSON.stringify(arr)); renderRecent();
+            // Check for fraud after transaction is added
+            checkFraudDetection(tx);
+        }
+
+        function renderAccountSummary(){
+            const accountEl = document.getElementById('accountId');
+            const account = localStorage.getItem(USER_ACCOUNT_KEY) || '';
+            if (accountEl) {
+                accountEl.innerText = account ? `ACCT • ${String(account).slice(-4)}` : 'ACCT • 1234';
+            }
+        }
+
+        function renderBalance(){
+            const b = getBalance();
+            document.getElementById('balanceDisplay').innerText = 'GHS ' + b.toFixed(2);
+            document.getElementById('headerBalance').innerText = 'Balance: GHS ' + b.toFixed(2);
+        }
+
+        function renderRecent(){
+            const list = document.getElementById('recentList'); list.innerHTML = '';
+            const tx = getTx().slice(0,5);
+            if(tx.length===0){ list.innerHTML = '<p class="text-sm text-gray-400">No recent activity</p>'; return; }
+            tx.forEach(t=>{
+                const el = document.createElement('div'); el.className='flex justify-between items-center';
+                el.innerHTML = `<div><div class="font-semibold">${t.title}</div><div class="text-xs text-gray-500">${t.note||t.type} • ${new Date(t.date).toLocaleString()}</div></div><div class="text-right"><div class="font-bold ${t.amount>0?'text-green-600':'text-gray-800'}">${t.amount>0?'+ ':'- '}GHS ${Math.abs(t.amount).toFixed(2)}</div></div>`;
+                list.appendChild(el);
+            });
+        }
+
+        // Fraud Detection Functions
+        async function checkFraudDetection(tx){
+            try {
+                // Build the named payload the API expects (GET /feature-schema on the API documents it).
+                // Everything here is something the sandbox genuinely knows - nothing is invented.
+                function buildScoringPayload(tx){
+                    const ts = tx.date || Date.now();
+                    const now = Date.now();
+                    const typ = String(tx.type || tx.transaction_type || 'payment').toLowerCase();
+                    const finite = (value) => Number.isFinite(Number(value)) && value !== null && value !== undefined ? Number(value) : null;
+                    // getTx() returns fresh copies, so compare by timestamp (pushTx already stored the current tx).
+                    const history = getTx().filter(item => item.date !== tx.date);
+                    const within = (item, ms) => now - new Date(item.date).getTime() <= ms;
+                    const deviceId = tx.device_id || getDeviceId();
+                    const recipient = String(tx.recipient || tx.title || '');
+                    const previousLocated = history.find(item => Number.isFinite(item.location_latitude) && Number.isFinite(item.location_longitude));
+                    const hasLocation = Number.isFinite(tx.location_latitude) && Number.isFinite(tx.location_longitude);
+                    const distanceKm = hasLocation && previousLocated
+                        ? distanceBetweenCoordinates(previousLocated.location_latitude, previousLocated.location_longitude, tx.location_latitude, tx.location_longitude)
+                        : 0;
+                    const elapsedHours = previousLocated ? Math.max((ts - new Date(previousLocated.date).getTime()) / 3600000, 0.01) : Infinity;
+                    return {
+                        transaction_type: typ,                       // send / withdraw / deposit / payment -> mapped by the API
+                        amount: Math.abs(Number(tx.amount || 0)),
+                        oldbalanceOrg: finite(tx.balance_before),
+                        newbalanceOrig: finite(tx.balance_after),
+                        oldbalanceDest: finite(tx.destination_balance_before),   // null = unknown recipient balance
+                        newbalanceDest: finite(tx.destination_balance_after),
+                        hour_of_day: new Date(ts).getHours(),
+                        timestamp: ts,
+                        device_timezone_offset_minutes: finite(tx.device_timezone_offset_minutes),
+                        // context handled by the API's transparent rule layer
+                        country: tx.country || null,
+                        location_available: hasLocation ? 1 : 0,
+                        location_change_distance_km: Math.round(distanceKm * 10) / 10,
+                        impossible_travel_flag: distanceKm > 500 && elapsedHours <= 6 ? 1 : 0,
+                        is_new_device: history.length > 0 && !history.some(item => item.device_id === deviceId) ? 1 : 0,
+                        is_new_beneficiary: typ === 'send' && !history.some(item => String(item.recipient || item.title || '') === recipient) ? 1 : 0,
+                        tx_count_24h: history.filter(item => within(item, 86400000)).length + 1,
+                        rapid_withdrawal_count: history.filter(item => item.type === 'withdraw' && within(item, 3600000)).length + (typ === 'withdraw' ? 1 : 0)
+                    };
+                }
+
+                const fraudCheckData = buildScoringPayload(tx);
+
+                // Call the fraud detection API using named features
+                const response = await fetch(PYTHON_MODEL_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(fraudCheckData)
+                }).catch(err => {
+                    console.log('API unavailable, using local fraud detection');
+                    return null;
+                });
+
+                if(response && response.ok){
+                    const result = await response.json();
+                    const isFraud = result.is_fraudulent || result.is_fraud;
+                    const prob = result.fraud_probability || result.fraudProbability || (result.fraud_probability===0?0: null) || (result.fraudProbability===0?0:null);
+                    if(isFraud || result.review_required || (prob !== null && prob > 0.7)){
+                        showFraudNotification(`Transaction of GHS ${Math.abs(tx.amount).toFixed(2)} flagged as suspicious (${result.risk_level || 'High Risk'}). ${(result.explanation && result.explanation.reason) || ''}`);
+                    }
+                    await storeScoredTransaction(tx, result, fraudCheckData);
+                } else {
+                    performLocalFraudDetection(tx);
+                }
+            } catch(err){
+                console.error('Fraud detection error:', err);
+                performLocalFraudDetection(tx);
+            }
+        }
+
+        async function storeScoredTransaction(tx, scoreResult, featureSnapshot) {
+            try {
+                const payload = {
+                    transaction_id: tx.id || `tx_${tx.date}`,
+                    transaction_type: tx.type || 'payment',
+                    amount: Math.abs(Number(tx.amount || 0)),
+                    oldbalanceOrg: Number.isFinite(tx.balance_before) ? tx.balance_before : null,
+                    newbalanceOrig: Number.isFinite(tx.balance_after) ? tx.balance_after : null,
+                    oldbalanceDest: Number.isFinite(tx.destination_balance_before) ? tx.destination_balance_before : null,
+                    newbalanceDest: Number.isFinite(tx.destination_balance_after) ? tx.destination_balance_after : null,
+                    timestamp: tx.date || Date.now(),
+                    device_time_ms: tx.device_time_ms || tx.date || Date.now(),
+                    device_timezone: tx.device_timezone || null,
+                    device_timezone_offset_minutes: Number.isFinite(tx.device_timezone_offset_minutes) ? tx.device_timezone_offset_minutes : null,
+                    description: tx.title || tx.note || 'Transaction',
+                    recipient: tx.title || tx.note || 'Customer',
+                    merchant: tx.merchant || tx.title || tx.note || 'merchant',
+                    time_hour: new Date(tx.date || Date.now()).getHours(),
+                    merchant_risk: null,   // the model does not use merchant risk (PaySim has none)
+                    merchant_category: tx.type || 'payment',
+                    country: tx.country || null,
+                    location_latitude: Number.isFinite(tx.location_latitude) ? tx.location_latitude : null,
+                    location_longitude: Number.isFinite(tx.location_longitude) ? tx.location_longitude : null,
+                    location_accuracy_m: Number.isFinite(tx.location_accuracy_m) ? tx.location_accuracy_m : null,
+                    location_timestamp: tx.location_timestamp || null,
+                    location_source: tx.location_source || 'unavailable',
+                    user_email: getUserEmail(),
+                    risk_score: Number.isFinite(scoreResult.risk_score) ? scoreResult.risk_score : Math.round((scoreResult.fraud_probability || 0) * 100),
+                    is_fraudulent: scoreResult.is_fraudulent ? 1 : 0,
+                    risk_level: scoreResult.risk_level || '',
+                    model_scores: scoreResult.model_scores || {},
+                    explanation: scoreResult.explanation || {},
+                    feature_snapshot: {
+                        ...featureSnapshot,
+                        balance_before: tx.balance_before ?? null,
+                        balance_after: tx.balance_after ?? null,
+                        device_id: tx.device_id || null,
+                        device_time_ms: tx.device_time_ms || tx.date || null,
+                        device_timezone: tx.device_timezone || null,
+                        device_timezone_offset_minutes: tx.device_timezone_offset_minutes ?? null,
+                        transaction_channel: tx.type === 'withdraw' ? 'ATM' : tx.type === 'send' ? 'BANK_TRANSFER' : tx.type === 'payment' ? 'ONLINE' : 'BANK_TRANSFER',
+                        location_latitude: tx.location_latitude ?? null,
+                        location_longitude: tx.location_longitude ?? null,
+                        location_accuracy_m: tx.location_accuracy_m ?? null,
+                        location_timestamp: tx.location_timestamp ?? null,
+                        location_source: tx.location_source || 'unavailable'
+                    },
+                    model_reason: scoreResult.explanation?.reason || ''
+                };
+
+                const response = await fetch(PHP_STORAGE_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const responseText = await response.text();
+                try {
+                    const json = JSON.parse(responseText || '{}');
+                    if (response.ok) {
+                        console.log('PHP storage success:', json);
+                        if (json.email_status) {
+                            console.log('Email status:', json.email_status);
+                        }
+                    } else {
+                        console.warn('PHP storage failed:', response.status, json);
+                    }
+                } catch (parseError) {
+                    console.warn('PHP storage returned invalid JSON:', response.status, responseText, parseError);
+                }
+            } catch (err) {
+                console.warn('PHP storage call failed:', err);
+            }
+        }
+
+        function performLocalFraudDetection(tx){
+            const fraudRules = {
+                highAmount: Math.abs(tx.amount) > 5000,
+                frequentTransaction: isFrequentTransaction(),
+                unusualTime: isUnusualTime(),
+                unusualPattern: isUnusualPattern(tx)
+            };
+
+            let fraudScore = 0;
+            if(fraudRules.highAmount) fraudScore += 30;
+            if(fraudRules.frequentTransaction) fraudScore += 25;
+            if(fraudRules.unusualTime) fraudScore += 20;
+            if(fraudRules.unusualPattern) fraudScore += 25;
+
+            if(fraudScore >= 50){
+                const reasons = [];
+                if(fraudRules.highAmount) reasons.push('High transaction amount');
+                if(fraudRules.frequentTransaction) reasons.push('Frequent transactions detected');
+                if(fraudRules.unusualTime) reasons.push('Unusual transaction time');
+                if(fraudRules.unusualPattern) reasons.push('Unusual transaction pattern');
+                
+                showFraudNotification(`⚠️ Risk Score: ${fraudScore}% - ${reasons.join(', ')}`);
+            }
+        }
+
+        function isFrequentTransaction(){
+            const tx = getTx();
+            const lastHour = new Date(Date.now() - 3600000);
+            const recentTx = tx.filter(t => new Date(t.date) > lastHour);
+            return recentTx.length > 3;
+        }
+
+        function isUnusualTime(){
+            const hour = new Date().getHours();
+            // Flag transactions between 2 AM and 6 AM as unusual
+            return hour >= 2 && hour <= 6;
+        }
+
+        function isUnusualPattern(tx){
+            const tx_history = getTx();
+            if(tx_history.length < 2) return false;
+            
+            const lastTx = tx_history[1];
+            if(!lastTx) return false;
+            
+            // Check if amount differs significantly from recent average
+            const recentAmounts = tx_history.slice(0, 5).map(t => Math.abs(t.amount));
+            const avgAmount = recentAmounts.reduce((a, b) => a + b, 0) / recentAmounts.length;
+            const currentAmount = Math.abs(tx.amount);
+            
+            return currentAmount > (avgAmount * 3); // 3x the average
+        }
+
+        function showToast(message, type = 'success'){
+            const wrapper = document.getElementById('appToast');
+            const messageEl = document.getElementById('appToastMessage');
+            messageEl.textContent = message;
+            messageEl.className = 'toast-message';
+            messageEl.classList.add(type === 'error' ? 'toast-error' : type === 'warning' ? 'toast-warning' : type === 'info' ? 'toast-info' : 'toast-success');
+            wrapper.classList.remove('hidden');
+            wrapper.classList.add('toast-visible');
+
+            if(window.toastTimer){
+                clearTimeout(window.toastTimer);
+            }
+            window.toastTimer = setTimeout(() => {
+                wrapper.classList.remove('toast-visible');
+                setTimeout(() => wrapper.classList.add('hidden'), 200);
+            }, 3200);
+        }
+
+        function showFraudNotification(message){
+            const notification = document.getElementById('fraudNotification');
+            document.getElementById('fraudMessage').innerText = message;
+            notification.classList.remove('hidden');
+            showToast(message, 'warning');
+            
+            // Auto-hide after 6 seconds
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 6000);
+        }
+
+        function closeFraudNotification(){
+            document.getElementById('fraudNotification').classList.add('hidden');
+        }
+
+        function togglePasswordVisibility(){
+            const input = document.getElementById('passwordInput');
+            const icon = document.getElementById('toggleIcon');
+            if(input.type === 'password'){
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        function openPasswordModal(callback){
+            const overlay = document.getElementById('passwordOverlay');
+            const input = document.getElementById('passwordInput');
+            const btn = document.getElementById('passwordConfirmBtn');
+            const btnText = document.getElementById('confirmBtnText');
+            input.value = '';
+            input.type = 'password';
+            input.focus();
+            btn.disabled = false;
+            btnText.innerText = 'Confirm';
+            btn.classList.remove('opacity-75', 'bg-red-500');
+            btn.classList.add('from-[#1a365d]', 'to-[#29abe2]');
+            overlay.classList.remove('hidden');
+            setTimeout(() => overlay.classList.add('flex'), 10);
+            
+            // Store callback for later
+            window.passwordCallback = callback;
+            
+            // Allow Enter key to confirm
+            input.onkeypress = (e) => {
+                if(e.key === 'Enter') verifyPassword();
+            };
+        }
+
+        function closePasswordModal(){
+            const overlay = document.getElementById('passwordOverlay');
+            overlay.classList.remove('flex');
+            overlay.classList.add('hidden');
+            document.getElementById('passwordInput').value = '';
+            window.passwordCallback = null;
+        }
+
+        function verifyPassword(){
+            const password = document.getElementById('passwordInput').value;
+            const btn = document.getElementById('passwordConfirmBtn');
+            const btnText = document.getElementById('confirmBtnText');
+            
+            if(password === DEFAULT_PASSWORD){
+                btnText.innerText = 'Verified ✓';
+                btn.disabled = true;
+                btn.classList.add('opacity-75');
+                
+                // Execute callback
+                if(window.passwordCallback) {
+                    setTimeout(() => {
+                        window.passwordCallback();
+                        closePasswordModal();
+                    }, 600);
+                }
+            } else {
+                const input = document.getElementById('passwordInput');
+                input.classList.add('border-red-500');
+                input.classList.remove('border-gray-200');
+                btnText.innerText = 'Wrong Password';
+                btn.classList.add('bg-red-500');
+                btn.classList.remove('from-[#1a365d]', 'to-[#29abe2]');
+                
+                setTimeout(() => {
+                    input.classList.remove('border-red-500');
+                    input.classList.add('border-gray-200');
+                    btnText.innerText = 'Confirm';
+                    btn.classList.remove('bg-red-500');
+                    btn.classList.add('from-[#1a365d]', 'to-[#29abe2]');
+                    input.value = '';
+                    input.focus();
+                }, 1500);
+            }
+        }
+
+        function openAction(type){
+            const overlay = document.getElementById('actionOverlay');
+            const title = document.getElementById('actionTitle');
+            const note = document.getElementById('actionNote');
+            const form = document.getElementById('actionForm');
+            const submit = document.getElementById('actionSubmit');
+            form.innerHTML = '';
+            if(type==='deposit'){
+                title.innerText='Deposit funds';
+                note.innerText='Add money to your SimplePay account.';
+                form.innerHTML = `<input id="amt" type="number" min="0" step="0.01" placeholder="Amount" class="action-modal-input" />`;
+                submit.onclick = ()=>{ 
+                    const v=parseFloat(document.getElementById('amt').value||0); 
+                    if(v>0){ 
+                        confirmTransaction((location) => {
+                            const balanceBefore = getBalance();
+                            const balanceAfter = balanceBefore + v;
+                            setBalance(balanceAfter); 
+                            pushTx({title:'Deposit', amount:v, type:'deposit', note:'Top up', date:Date.now(), balance_before:balanceBefore, balance_after:balanceAfter, ...location}); 
+                            closeAction(); 
+                            showToast('Deposit completed successfully.', 'success');
+                        });
+                    } else {
+                        showToast('Please enter a valid deposit amount.', 'error');
+                    }
+                };
+            } else if(type==='withdraw'){
+                title.innerText='Withdraw funds';
+                note.innerText='Withdraw money from your SimplePay account.';
+                form.innerHTML = `<input id="amt" type="number" min="0" step="0.01" placeholder="Amount" class="action-modal-input" />`;
+                submit.onclick = ()=>{ 
+                    const v=parseFloat(document.getElementById('amt').value||0); 
+                    if(v>0 && v<=getBalance()){ 
+                        confirmTransaction((location) => {
+                            const balanceBefore = getBalance();
+                            const balanceAfter = balanceBefore - v;
+                            setBalance(balanceAfter); 
+                            pushTx({title:'Withdraw', amount:-v, type:'withdraw', note:'Cash out', date:Date.now(), balance_before:balanceBefore, balance_after:balanceAfter, ...location}); 
+                            closeAction(); 
+                            showToast('Withdrawal completed successfully.', 'success');
+                        });
+                    } else { showToast('Insufficient balance or invalid amount.', 'error'); } 
+                };
+            } else if(type==='send'){
+                title.innerText='Send money';
+                note.innerText='Send to a mobile number or account.';
+                form.innerHTML = `<input id="to" placeholder="Recipient" class="action-modal-input mb-3" /><input id="amt" type="number" min="0" step="0.01" placeholder="Amount" class="action-modal-input" />`;
+                submit.onclick = ()=>{ 
+                    const v=parseFloat(document.getElementById('amt').value||0); 
+                    const to=document.getElementById('to').value||'Unknown'; 
+                    if(v>0 && v<=getBalance()){ 
+                        confirmTransaction((location) => {
+                            const balanceBefore = getBalance();
+                            const balanceAfter = balanceBefore - v;
+                            setBalance(balanceAfter); 
+                            pushTx({title:'Send to '+to, amount:-v, type:'send', note:'Send money', date:Date.now(), balance_before:balanceBefore, balance_after:balanceAfter, ...location}); 
+                            closeAction(); 
+                            showToast('Money sent successfully.', 'success');
+                        });
+                    } else { showToast('Insufficient balance or invalid amount.', 'error'); } 
+                };
+            } else if(type==='pay'){
+                title.innerText='Pay merchant';
+                note.innerText='Pay for goods or services.';
+                form.innerHTML = `<input id="for" placeholder="Description" class="action-modal-input mb-3" /><input id="amt" type="number" min="0" step="0.01" placeholder="Amount" class="action-modal-input" />`;
+                submit.onclick = ()=>{ 
+                    const v=parseFloat(document.getElementById('amt').value||0); 
+                    const desc=document.getElementById('for').value||'Payment'; 
+                    if(v>0 && v<=getBalance()){ 
+                        confirmTransaction((location) => {
+                            const balanceBefore = getBalance();
+                            const balanceAfter = balanceBefore - v;
+                            setBalance(balanceAfter); 
+                            pushTx({title:desc, amount:-v, type:'payment', note:'Merchant payment', date:Date.now(), balance_before:balanceBefore, balance_after:balanceAfter, ...location}); 
+                            closeAction(); 
+                            showToast('Payment completed successfully.', 'success');
+                        });
+                    } else { showToast('Insufficient balance or invalid amount.', 'error'); } 
+                };
+            }
+            overlay.classList.remove('hidden');
+            setTimeout(()=> overlay.classList.add('flex'), 10);
+        }
+
+        function closeAction(){
+            const overlay = document.getElementById('actionOverlay'); overlay.classList.add('hidden'); overlay.classList.remove('flex');
+        }
+
+        // On load
+        (function(){
+            requireAuth();
+            if(isNaN(getBalance())) setBalance(0);
+            renderAccountSummary();
+            renderBalance();
+            renderRecent();
+            // open via hash
+            if(location.hash){ const m = new URLSearchParams(location.hash.replace('#','')); const type = m.get('op'); if(type) openAction(type); }
+        })();
+    </script>
+</body>
+</html>

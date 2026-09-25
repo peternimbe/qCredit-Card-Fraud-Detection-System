@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimplePay — Sign In</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #eef2ff; }
+        .page-shell { min-height: 100vh; display: grid; place-items: center; padding: 2rem; }
+        .signin-card { width: 100%; max-width: 450px; border-radius: 28px; overflow: hidden; box-shadow: 0 34px 80px rgba(15, 23, 42, 0.14); background: white; }
+        .signin-top { background: linear-gradient(180deg, rgba(26, 54, 93, 0.96), rgba(41, 171, 226, 0.96)); color: #f8fafc; padding: 3rem 2rem 2rem; position: relative; }
+        .signin-top::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(255,255,255,0.18), transparent 28%), radial-gradient(circle at center left, rgba(255,255,255,0.1), transparent 22%); pointer-events: none; }
+        .signin-top-content { position: relative; z-index: 1; }
+        .hero-icon { width: 60px; height: 60px; border-radius: 22px; background: rgba(255,255,255,0.14); display: grid; place-items: center; border: 1px solid rgba(255,255,255,0.2); margin-bottom: 1.5rem; }
+        .auth-form { padding: 2rem; }
+        .auth-input { width: 100%; border-radius: 18px; border: 1px solid #e2e8f0; background: #f8fafc; padding: 1rem 1.1rem; color: #0f172a; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .auth-input:focus { border-color: #1d4ed8; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12); }
+        .btn-primary { width: 100%; border-radius: 20px; padding: 1rem; background: #1a365d; color: white; font-weight: 600; box-shadow: 0 16px 32px rgba(26, 54, 93, 0.18); transition: background-color 0.2s ease, transform 0.2s ease; }
+        .btn-primary:hover { background: #15304f; transform: translateY(-1px); }
+        .signin-note { color: #64748b; font-size: 0.95rem; line-height: 1.7; }
+        .feedback { min-height: 1.25rem; }
+        .demo-card { border-radius: 24px; border: 1px solid #e2e8f0; background: #f8fafc; padding: 1rem 1.25rem; margin-top: 1.5rem; color: #475569; }
+    </style>
+</head>
+<body class="page-shell">
+    <div class="signin-card">
+        <div class="signin-top">
+            <div class="signin-top-content">
+                <div class="hero-icon">
+                    <i data-lucide="lock" class="w-6 h-6 text-white"></i>
+                </div>
+                <h1 class="text-3xl font-semibold">Secure sign in</h1>
+                <p class="mt-3 text-slate-200 text-sm leading-7">Confirm your identity</p>
+            </div>
+        </div>
+
+        <div class="auth-form">
+            <form id="signinForm" class="space-y-5" onsubmit="event.preventDefault(); submitLogin();">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
+                        <input id="email" type="email" placeholder="admin@simplepay.local" class="auth-input" autocomplete="email" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
+                    <input id="password" type="password" placeholder="••••••••" class="auth-input" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="btn-primary">Sign in securely</button>
+                <div id="signinFeedback" class="feedback text-sm text-red-500 text-center hidden"></div>
+            </form>
+
+            <div class="signin-note text-center mt-3">
+                Don't have an account? <a href="signup.html" class="text-[#1a365d] font-semibold">Sign up</a>
+            </div>
+
+            <div class="demo-card">
+                <p class="font-semibold text-slate-800">Demo credentials</p>
+                <p class="mt-3">Email: <span class="font-medium">admin@simplepay.local</span></p>
+                <p>Password: <span class="font-medium">simplepay123</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const AUTH_KEY = 'simplepay_auth';
+        const USER_KEY = 'simplepay_user';
+        const IS_ADMIN_KEY = 'simplepay_is_admin';
+        const USER_EMAIL_KEY = 'simplepay_user_email';
+        const USER_NAME_KEY = 'simplepay_user_name';
+        const USER_ACCOUNT_KEY = 'simplepay_user_account';
+
+        // Static admin credentials (email + password)
+        const ADMIN_EMAIL = 'admin@simplepay.local';
+        const ADMIN_PASSWORD = 'simplepay123';
+
+
+        async function submitLogin(){
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const feedback = document.getElementById('signinFeedback');
+
+            feedback.classList.add('hidden');
+
+            // Quick client-side validation
+            if(!email || !password){
+                feedback.textContent = 'Please provide both email and password.';
+                feedback.classList.remove('hidden');
+                setTimeout(() => feedback.classList.add('hidden'), 3000);
+                return;
+            }
+
+            try {
+                // Check static admin first
+                if(email === ADMIN_EMAIL && password === ADMIN_PASSWORD){
+                    localStorage.setItem(AUTH_KEY, 'true');
+                    localStorage.setItem(USER_KEY, email);
+                    localStorage.setItem(IS_ADMIN_KEY, 'true');
+                    localStorage.setItem(USER_EMAIL_KEY, email);
+                    localStorage.setItem(USER_NAME_KEY, 'Administrator');
+                    localStorage.setItem(USER_ACCOUNT_KEY, 'ADMIN');
+                    location.href = 'admin/index.html';
+                    return;
+                }
+
+                const res = await fetch('../php_backend/verify_login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+                if(res.ok && data && data.status === 'ok'){
+                    localStorage.setItem(AUTH_KEY, 'true');
+                    localStorage.setItem(USER_KEY, data.user.email || email);
+                    localStorage.setItem(IS_ADMIN_KEY, data.user.is_admin ? 'true' : 'false');
+                    localStorage.setItem(USER_EMAIL_KEY, data.user.email || email);
+                    localStorage.setItem(USER_NAME_KEY, data.user.name || data.user.email || email);
+                    localStorage.setItem(USER_ACCOUNT_KEY, data.user.account_number || '');
+                    // Redirect admin users to admin dashboard
+                    if(data.user.is_admin){
+                        location.href = 'admin/index.html';
+                    } else {
+                        location.href = 'index.html';
+                    }
+                    return;
+                }
+
+                feedback.textContent = data.error || 'Invalid email or password. Please try again.';
+                feedback.classList.remove('hidden');
+                setTimeout(() => feedback.classList.add('hidden'), 4000);
+            } catch (err) {
+                console.error(err);
+                feedback.textContent = 'Unable to contact server. Please try again later.';
+                feedback.classList.remove('hidden');
+                setTimeout(() => feedback.classList.add('hidden'), 4000);
+            }
+        }
+
+        (function(){
+            if(localStorage.getItem(AUTH_KEY) === 'true'){
+                location.href = 'index.html';
+            }
+        })();
+    </script>
+</body>
+</html>

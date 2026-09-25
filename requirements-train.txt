@@ -1,0 +1,2 @@
+# Everything needed to retrain locally (scripts/prepare_data.py, scripts/train_pipeline.py).
+-r requirements.txt
